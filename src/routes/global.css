@@ -1,0 +1,82 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap');
+body, h1, h2, ul, li, form, input, button {
+    font-family: 'Lato', sans-serif;
+    margin: 0!important;
+}
+html { font-size: 15px;}
+body { 
+    height: calc(100vh);
+    background-color: var(--purple);
+}
+input, textarea { margin: 0}
+textarea {resize: none; box-sizing: border-box;}
+
+button {
+    display: inline-flex;
+    height: 36px;
+    padding: 1px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+}
+button.primary { 
+    color: white;
+    border: 1px solid var(--base-inverse-highlight-2);
+    background-color: var(--base-inverse-highlight-2);
+}
+
+:root {
+    --base-primary: rgba(255, 255, 255, 1);
+    --base-secondary: rgba(248, 248, 248, 1);
+    --base-tertiary: rgba(234, 234, 234, 1);
+    --base-highlight-1: rgba(227, 248, 255, 1);
+    --base-highlight-2: rgba(227, 255, 243, 1);
+    --base-highlight-3: rgba(255, 250, 224, 1);
+    --base-important: rgba(255, 232, 239, 1);
+    --base-modal: rgba(29, 28, 29, 0.699999988079071);
+    --base-inverse-primary: rgba(29, 28, 29, 1);
+    --base-inverse-highlight-1: rgba(18, 100, 163, 1);
+    --base-inverse-highlight-2: rgba(0, 122, 90, 1);
+    --base-inverse-highlight-3: rgba(241, 185, 0, 1);
+    --base-inverse-important: rgba(224, 30, 90, 1);
+    --surface-primary: rgba(29, 28, 29, 0.05999999865889549);
+    --surface-secondary: rgba(29, 28, 29, 0.25);
+    --surface-highlight-1: rgba(54, 197, 240, 0.12999999523162842);
+    --surface-highlight-2: rgba(76, 200, 148, 0.25);
+    --surface-highlight-3: rgba(255, 198, 0, 0.18000000715255737);
+    --surface-important: rgba(255, 129, 170, 0.12999999523162842);
+    --surface-inverse: rgba(255, 255, 255, 0.18000000715255737);
+    --container-primary: rgba(255, 255, 255, 1);
+    --container-secondary: rgba(248, 248, 248, 1);
+    --content-primary: rgba(29, 28, 29, 1);
+    --content-secondary: rgba(69, 68, 71, 1);
+    --content-tertiary: rgba(124, 122, 127, 1);
+    --content-highlight-1: rgba(18, 100, 163, 1);
+    --content-highlight-2: rgba(0, 122, 90, 1);
+    --content-highlight-3: rgba(107, 80, 0, 1);
+    --content-important: rgba(192, 19, 67, 1);
+    --content-inverse-primary: rgba(255, 255, 255, 1);
+    --content-inverse-secondary: rgba(234, 234, 234, 1);
+    --content-inverse-highlight-1: rgba(158, 214, 250, 1);
+    --content-inverse-highlight-2: rgba(76, 200, 148, 1);
+    --content-inverse-highlight-3: rgba(255, 215, 56, 1);
+    --content-inverse-important: rgba(255, 163, 194, 1);
+    --outline-primary: rgba(124, 122, 127, 1);
+    --outline-secondary: rgba(94, 93, 96, 0.44999998807907104);
+    --outline-tertiary: rgba(94, 93, 96, 0.12999999523162842);
+    --outline-highlight-1: rgba(18, 100, 163, 1);
+    --outline-highlight-1-secondary: rgba(14, 157, 211, 0.20000000298023224);
+    --outline-highlight-2: rgba(0, 122, 90, 1);
+    --outline-highlight-2-secondary: rgba(0, 122, 90, 0.10000000149011612);
+    --outline-highlight-3: rgba(199, 150, 0, 1);
+    --outline-highlight-3-secondary: rgba(241, 185, 0, 0.20000000298023224);
+    --outline-important: rgba(224, 30, 90, 1);
+    --outline-important-secondary: rgba(224, 30, 90, 0.30000001192092896);
+
+    /* Blaine's nicknames */
+    --purple: var(--base-inverse-primary);
+    --white: var(--container-primary);
+    --nav-bg: rgba(249, 237, 255, 0.10);
+    --green: var(--base-inverse-highlight-2);
+}
