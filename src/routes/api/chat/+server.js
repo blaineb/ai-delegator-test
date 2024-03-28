@@ -1,12 +1,23 @@
 import OpenAI from "openai";
-import { OpenAIStream, StreamingTextResponse } from 'ai';
+import { OpenAIStream, StreamingTextResponse } from "ai";
 // import greenTechChannel from '/data/greenTechChannel.js';
 // import salesforceDB from '/data/salesforceDB.js';
-import { summarizeChannel, getSalesforceRecords, generalKnowledge, updateDeal, manifest, salesforceDB, greenTechChannel } from '../tools.js';
+import {
+  summarizeChannel,
+  getSalesforceRecords,
+  generalKnowledge,
+  updateDeal,
+  manifest,
+  salesforceDB,
+  greenTechChannel,
+} from "../tools.js";
 // import { tools } from '/data/tools-manifest.js';
 
 // OpenAI basics
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY, dangerouslyAllowBrowser: true });
+const openai = new OpenAI({
+  apiKey: "My TOTALLY REAL key",
+  dangerouslyAllowBrowser: true,
+});
 const slackbotID = "asst_meFVz4J9xZqLgu7x0mxvp0Yo"; // slackbot assistant?
 const einsteinID = "asst_8Ituh5QQTm08BavFaUwOzjyl"; // Einstein assistant
 
@@ -14,7 +25,7 @@ const availableTools = {
   summarizeChannel,
   getSalesforceRecords,
   generalKnowledge,
-  updateDeal
+  updateDeal,
 };
 console.log("TOOLS");
 console.log(manifest);
@@ -29,12 +40,18 @@ async function pushMessage(input, user = "user") {
 export const POST = async ({ request }) => {
   const { messages } = await request.json();
 
-  for (let i = 0; i < 5; i++) {
+  try {
     const response = await openai.chat.completions.create({
       model: "gpt-4",
       messages: messages,
       tools: manifest,
+      tool_choice: "auto",
     });
+
+    console.log("response", response);
+
+    console.log("message", response.choices[0].message);
+
     const { finish_reason, message } = response.choices[0];
 
     if (finish_reason === "tool_calls" && message.tool_calls) {
@@ -52,23 +69,28 @@ export const POST = async ({ request }) => {
       let functionResponse;
       if (functionToCall) {
         functionResponse = await functionToCall.apply(null, functionArgsArr);
+
+        // functionRespons = greenTechChannel;
       } else {
-        console.error(`Cannot call apply on undefined function ${functionName}`);
+        console.error(
+          `Cannot call apply on undefined function ${functionName}`
+        );
       }
-      messages.push({
-        role: "function",
-        name: functionName,
-        content: `The result of the last function was this: ${JSON.stringify(functionResponse)}`,
-      });
+      // messages.push({
+      //   role: "function",
+      //   name: functionName,
+      //   content: `The result of the last function was this: ${JSON.stringify(
+      //     functionResponse
+      //   )}`,
+      // });
     } else if (finish_reason === "stop") {
+      console.log("STOP called");
       messages.push(message);
       // return response;
       const stream = OpenAIStream(response);
       return new StreamingTextResponse(stream);
     }
+  } catch (error) {
+    console.error(error);
   }
-  return "The maximum number of iterations has been met without a suitable answer. Please try again with a more specific input.";
 };
-
-
-
