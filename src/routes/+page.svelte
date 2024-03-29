@@ -1,54 +1,30 @@
 <script>
   import { useChat } from "ai/svelte";
+  import { marked } from 'marked'; // markdown thingy
+  // import { nanoid } from 'ai'
 
-  const { input, handleSubmit, messages, append } = useChat({
+  const { input, handleSubmit, messages } = useChat({
     api: "/api/chat",
     initialMessages: [
       {
         role: "system",
-        content: `Your job is to use the available functions. Only use the functions you have been provided with.`,
-      },
+        content: "You are a helpful assistant to a sales person in Slack. Your job is to classify a request as being about whether the request is about how to set up solutions for their company, to accomplish a task, or for general information or creatitivity. Answer with only those categories, nothing more."
+      }
     ],
+    onResponse: (response) => {
+      console.log("RESPONSE DEBUG");
+      console.log(response);
+    },
+    onFinish: (message) => {
+      console.log("MESSAGE DEBUG")
+      console.log(message, message.finish_reason);
+    }
   });
-  let textarea;
-
-  function summarizeChannel(channel) {
-    append();
-  }
-
-  // function handleKeyDown(e) {
-  //   if (e.key === "Enter") {
-  //     if (e.shiftKey) {
-  //       // Insert newline at cursor position
-  //       const start = textarea.selectionStart;
-  //       const end = textarea.selectionEnd;
-  //       input.set(input.substring(0, start) + "\n" + input.substring(end));
-  //       textarea.selectionStart = textarea.selectionEnd = start + 1;
-  //       autogrow(e);
-  //     } else {
-  //       // Submit form
-  //       e.preventDefault();
-  //       handleFormSubmit(e);
-  //     }
-  //   }
-  // }
-
-  function handleFormSubmit(e) {
-    handleSubmit(e);
-    textarea.value = "";
-    autogrow(e);
-    textarea.style.height = "auto";
-    textarea.style.overflow = "hidden";
-    textarea.style.height = "1em";
-  }
-  function autogrow(e) {
-    e.target.style.height = e.target.scrollHeight + "px";
-  }
 </script>
 
 <svelte:head>
   <title>Home</title>
-  <meta name="description" content="Svelte demo app" />
+  <meta name="description" content="Multi-assistant" />
 </svelte:head>
 
 <section>
@@ -61,18 +37,16 @@
         <div class="avatar"></div>
         <div class="content">
           <div class="role">{message.role}</div>
-          <div class="content">{message.content}</div>
+          <div class="content">{@html marked(message.content)}</div>
         </div>
       </div>
     {/each}
   </div>
-  <form on:submit={handleFormSubmit}>
+  <form on:submit={handleSubmit}>
     <textarea
       bind:this={textarea}
       bind:value={$input}
       style="height: 1em; overflow: hidden;"
-      on:input={autogrow}
-      on:blur={autogrow}
     ></textarea>
     <!-- on:keydown={handleKeyDown} -->
     <button class="primary" type="submit">Send</button>

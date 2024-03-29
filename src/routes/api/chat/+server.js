@@ -1,96 +1,59 @@
-import OpenAI from "openai";
-import { OpenAIStream, StreamingTextResponse } from "ai";
-// import greenTechChannel from '/data/greenTechChannel.js';
-// import salesforceDB from '/data/salesforceDB.js';
-import {
-  summarizeChannel,
-  getSalesforceRecords,
-  generalKnowledge,
-  updateDeal,
-  manifest,
-  salesforceDB,
-  greenTechChannel,
-} from "../tools.js";
-// import { tools } from '/data/tools-manifest.js';
+import OpenAI from 'openai';
+import { OpenAIStream, StreamingTextResponse, experimental_StreamData } from 'ai';
+import { tools, runTool } from "./functions";
+import { env } from '$env/dynamic/private';
+const openai = new OpenAI({ apiKey: env.OPENAI_API_KEY || '', });
 
-// OpenAI basics
-const openai = new OpenAI({
-  apiKey: "My TOTALLY REAL key",
-  dangerouslyAllowBrowser: true,
-});
-const slackbotID = "asst_meFVz4J9xZqLgu7x0mxvp0Yo"; // slackbot assistant?
-const einsteinID = "asst_8Ituh5QQTm08BavFaUwOzjyl"; // Einstein assistant
-
-const availableTools = {
-  summarizeChannel,
-  getSalesforceRecords,
-  generalKnowledge,
-  updateDeal,
-};
-console.log("TOOLS");
-console.log(manifest);
-
-async function pushMessage(input, user = "user") {
-  messages.push({
-    role: user,
-    content: input,
-  });
-}
-
-export const POST = async ({ request }) => {
+// Define an asynchronous POST function to handle incoming requests
+export async function POST({ request }) {
   const { messages } = await request.json();
+  const model = 'gpt-3.5-turbo-1106';
 
-  try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-4",
-      messages: messages,
-      tools: manifest,
-      tool_choice: "auto",
-    });
+  const response = await openai.chat.completions.create({
+    model, stream: true, messages, tools
+  });
 
-    console.log("response", response);
+  const data = new experimental_StreamData();
 
-    console.log("message", response.choices[0].message);
+  const stream = OpenAIStream(response, {
+    experimental_onToolCall: async (call, appendToolCallMessage) => {
+      for (const toolCall of call.tools) {
+        console.log("TOOL", toolCall.func.name, toolCall.func.arguments);
+        const result = await runTool(toolCall.func.name, toolCall.func.arguments);
 
-    const { finish_reason, message } = response.choices[0];
+          // Append the tool call result to the chat messages
+          const newMessages = appendToolCallMessage({
+            tool_call_id: toolCall.id,
+            function_name: toolCall.func.name,
+            tool_call_result: result,
+          });
 
-    if (finish_reason === "tool_calls" && message.tool_calls) {
-      const functionName = message.tool_calls[0].function.name; // Get the name
-      console.log(`Function name: ${functionName}`);
-      const functionToCall = availableTools[functionName]; // Find the function
-      console.log(`Function to call: ${functionToCall}`);
-      if (!functionToCall) {
-        console.error(`Function ${functionName} not found in availableTools`);
-      } else {
-        console.log(`Function ${functionName} found in availableTools`);
-      }
-      const functionArgs = JSON.parse(message.tool_calls[0].function.arguments);
-      const functionArgsArr = Object.values(functionArgs); // Get the args
-      let functionResponse;
-      if (functionToCall) {
-        functionResponse = await functionToCall.apply(null, functionArgsArr);
+          // Create a new chat completion with the updated messages
+          return openai.chat.completions.create({
+            messages: [...messages, ...newMessages], // Combine the original and new messages
+            model, // The model specified above
+            stream: true, // Continue streaming
+            tools, // The functions available for the chat
+          });
+        }
+    },
+    onCompletion: (completion) => {
+      console.log('completion:', completion); // Log the completion for debugging
+    },
+    onFinal: () => {
+      data.close(); // Close the stream data object
+    },
+    experimental_streamData: true, // Enable experimental features for stream data
+  });
 
-        // functionRespons = greenTechChannel;
-      } else {
-        console.error(
-          `Cannot call apply on undefined function ${functionName}`
-        );
-      }
-      // messages.push({
-      //   role: "function",
-      //   name: functionName,
-      //   content: `The result of the last function was this: ${JSON.stringify(
-      //     functionResponse
-      //   )}`,
-      // });
-    } else if (finish_reason === "stop") {
-      console.log("STOP called");
-      messages.push(message);
-      // return response;
-      const stream = OpenAIStream(response);
-      return new StreamingTextResponse(stream);
-    }
-  } catch (error) {
-    console.error(error);
-  }
-};
+  // Append a new message to the stream data object
+  // console.log("DATA");
+  // console.log(data);
+  // data.append({
+  //   text: 'Hello, how are you?', // The content of the message
+  // });
+  // console.log(data);
+
+  // Return a new streaming text response with the stream and data objects
+  return new StreamingTextResponse(stream, {}, data);
+}
