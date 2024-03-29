@@ -23,6 +23,7 @@ export const tools = [{
 }]
 
 async function get_current_weather(location, format) {
+  console.log("Look ma I'm a tool and I'm being run!");
   const weatherData = {
     location: location,
     temperature: 20, // Example temperature data
@@ -36,7 +37,7 @@ async function get_current_weather(location, format) {
 export async function runTool(name, args) {
   switch (name) {
     case "get_current_weather":
-      return await get_current_weather();
+      return await get_current_weather(args);
     // case "get_story":
     //   return await get_story(args["id"]);
     // case "get_story_with_comments":

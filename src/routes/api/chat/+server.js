@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
 import { OpenAIStream, StreamingTextResponse, experimental_StreamData } from 'ai';
-import { tools, runTool } from "./functions";
+import { tools, runTool } from "./tools";
 import { env } from '$env/dynamic/private';
 const openai = new OpenAI({ apiKey: env.OPENAI_API_KEY || '', });
 

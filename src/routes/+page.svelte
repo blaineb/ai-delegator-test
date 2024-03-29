@@ -8,7 +8,7 @@
     initialMessages: [
       {
         role: "system",
-        content: "You are a helpful assistant to a sales person in Slack. Your job is to classify a request as being about whether the request is about how to set up solutions for their company, to accomplish a task, or for general information or creatitivity. Answer with only those categories, nothing more."
+        content: "You are a helpful assistant to a sales person in Slack. Your job is to classify a request as being about whether the request is about how to set up solutions for their company, to accomplish a task, or for general information or creatitivity. A request can only be one of those 3. If it's accomplish a task, and it can be accomplished with an available tool, then just accomplish the task instead. Otherwise, answer only with the name of the category."
       }
     ],
     onResponse: (response) => {
@@ -20,6 +20,8 @@
       console.log(message, message.finish_reason);
     }
   });
+
+  let textarea;
 </script>
 
 <svelte:head>
